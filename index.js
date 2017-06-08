@@ -9,6 +9,7 @@ class List {
         };
 
 		this.items = [];
+		this.counter = 0;
 
 		this.loadData(options);
 	};
@@ -23,7 +24,8 @@ class List {
 	};
 
 	addItem(item) {
-		item = new Item (item);
+		this.counter++;
+		item = new Item (item, this.counter);
 		this.items.push(item);
 
 		this.draw();
@@ -32,26 +34,75 @@ class List {
 	draw() {
 		if (!this.layout.wrapper) {
             this.layout.wrapper = document.createElement("div");
-            this.layout.wrapper.className = "list-wrapper";
+            this.layout.wrapper.className = "list";
             this.layout.container.appendChild(this.layout.wrapper);
+
+            this.layout.name = document.createElement("div");
+            this.layout.name.className = "list__title";
+            this.layout.name.textContent = "Structure";
+            this.layout.wrapper.appendChild(this.layout.name);
         }
-		console.log(this.items);
+		
+/*		this.items.forEach(function(item) {
+            this.layout.wrapper.appendChild(item.render());
+        }, this);*/
+
+        for (let itemId in this.items)
+        {
+        	var item = this.items[itemId];
+
+        	console.log(this.layout.wrapper);
+            this.layout.wrapper.appendChild(item.render());
+        }
+
 	}
 
 }
 
 class Item {
-	constructor(item) {
+	constructor(item, counter) {
 		this.title = item.heading;
 		this.content = item.content;
+		this.counter = counter;
 
 		this.layout = {
         	container: null,
+        	header: null,
             title: null,
             content: null,
             number: null,
             button: null
         };
+	}
+
+	render() {
+		if (!this.layout.container)
+        {
+        	this.layout.container = document.createElement("div");
+            this.layout.container.className = "item";
+
+            this.layout.header = document.createElement("div");
+            this.layout.header.className = "item__header";
+            this.layout.container.appendChild(this.layout.header);
+
+            this.layout.number = document.createElement("div");
+            this.layout.number.className = "item__number";
+
+            this.layout.number.textContent = this.counter;
+            this.layout.header.appendChild(this.layout.number);
+
+            this.layout.title = document.createElement("div");
+            this.layout.title.className = "item__title";
+            this.layout.title.textContent = this.title;
+            this.layout.header.appendChild(this.layout.title);
+
+            this.layout.content = document.createElement("div");
+            this.layout.content.className = "item__content";
+            this.layout.content.textContent = this.content;
+            this.layout.container.appendChild(this.layout.content);
+        }
+
+        return this.layout.container;
 	}
 }
 
