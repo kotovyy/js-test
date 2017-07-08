@@ -115,7 +115,8 @@ class Item {
 			menu: null,
 			wrapper: null,
 			buttons: null,
-			textarea: null
+			textarea: null,
+			wrapper_edit: null
 		};
 	}
 
@@ -132,91 +133,56 @@ class Item {
 		return this.id;
 	}
 
+	createElement(tag, props, text, ...children) {
+		var element = document.createElement(tag);
+
+		for(var pr in props){
+			element.setAttribute(pr, props[pr]);
+		}
+
+		if (text !== 0) {
+			element.textContent = text;
+		}
+		
+		if (children.length > 0) {
+			children.forEach(function(child){
+				element.appendChild(child);
+			});
+		}
+
+		return element;
+	}
+
 	render() {
 		if (!this.layout.container) {
-			this.layout.container = document.createElement("div");
-			this.layout.container.className = "item";
 
-			this.layout.wrapper = document.createElement("div");
-			this.layout.wrapper.className = "item__inner-wrapper";
-			this.layout.container.appendChild(this.layout.wrapper);
+			this.layout.number = this.createElement("div", { class: "item__number" });
+			this.layout.title = this.createElement("div", { class: "item__title"}, this.title);
+			this.layout.header = this.createElement("div", { class: "item__header" }, 0, this.layout.number, this.layout.title);
 
-			this.layout.header = document.createElement("div");
-			this.layout.header.className = "item__header";
-			this.layout.wrapper.appendChild(this.layout.header);
+			this.layout.edit = this.createElement("div", { class: "item__edit"}, "Edit");
+			this.layout.delete = this.createElement("div", { class: "item__delete"}, "Delete");
+			this.layout.menu = this.createElement("div", { class: "item__menu" }, 0, this.layout.edit, this.layout.delete);
 
-			this.layout.number = document.createElement("div");
-			this.layout.number.className = "item__number";
+			this.layout.content = this.createElement("div", { class: "item__content"}, this.content);
+			this.layout.button = this.createElement("div", { class: "item__button" });
+			this.layout.content_wrapper = this.createElement("div", { class: "item__content-wrapper" }, 0, this.layout.content, this.layout.button, this.layout.menu);
 
-			//this.layout.number.textContent = this.id;
-			this.layout.header.appendChild(this.layout.number);
+			this.layout.wrapper = this.createElement("div", { class: "item__inner-wrapper" }, 0, this.layout.header, this.layout.content_wrapper);
 
-			this.layout.title = document.createElement("div");
-			this.layout.title.className = "item__title";
-			this.layout.title.textContent = this.title;
-			this.layout.header.appendChild(this.layout.title);
+			//форма редактирования		
+			this.layout.save = this.createElement("button", { class: "item__save-button"}, "Save" );
+			this.layout.cancel = this.createElement("button", { class: "item__cancel-button"}, "Cancel" );
+			this.layout.buttons = this.createElement("div", { class: "item__buttons" }, 0, this.layout.save, this.layout.cancel);
 
-			this.layout.content_wrapper = document.createElement("div");
-			this.layout.content_wrapper.className = "item__content-wrapper";
-			this.layout.wrapper.appendChild(this.layout.content_wrapper);
+			this.layout.input_title = this.createElement("input", { class: "item__input-title", type:"text", name:"new_title", value: this.title });
+			this.layout.textarea = this.createElement("textarea", { class: "item__textarea", type:"text", name:"new_content"}, this.content);
 
-			this.layout.content = document.createElement("div");
-			this.layout.content.className = "item__content";
-			this.layout.content.textContent = this.content;
-			this.layout.content_wrapper.appendChild(this.layout.content);
+			this.layout.wrapper_edit = this.createElement("div", { class: "item__inner-wrapper-editable" }, 0, this.layout.input_title, this.layout.textarea, this.layout.buttons);
 
-			this.layout.button = document.createElement("div");
-			this.layout.button.className = "item__button";
-			this.layout.content_wrapper.appendChild(this.layout.button);
+			this.layout.container = this.createElement("div", { class: "item" }, 0, this.layout.wrapper, this.layout.wrapper_edit);
 
-			this.layout.menu = document.createElement("div");
-			this.layout.menu.className = "item__menu";
-			this.layout.content_wrapper.appendChild(this.layout.menu);
-
-			this.layout.edit = document.createElement("div");
-			this.layout.edit.className = "item__edit";
-			this.layout.edit.textContent = "Edit";
-			this.layout.menu.appendChild(this.layout.edit);
-
-			this.layout.delete = document.createElement("div");
-			this.layout.delete.className = "item__delete";
-			this.layout.delete.textContent = "Delete";
-			this.layout.menu.appendChild(this.layout.delete);
-
-			//форма редактирования
-			this.layout.wrapper = document.createElement("div");
-			this.layout.wrapper.className = "item__inner-wrapper-editable";
-			this.layout.container.appendChild(this.layout.wrapper);
-
-			this.layout.input_title = document.createElement("input");
-			this.layout.input_title.className = "item__input-title";
-			this.layout.input_title.value = this.title;
-			this.layout.input_title.setAttribute("type", "text");
-			this.layout.input_title.setAttribute("name", "new_title");
-			this.layout.wrapper.appendChild(this.layout.input_title);
-
-			this.layout.textarea = document.createElement("textarea");
-			this.layout.textarea.className = "item__textarea";
-			this.layout.textarea.value = this.content;
-			this.layout.textarea.setAttribute("type", "text");
-			this.layout.textarea.setAttribute("name", "new_content");
-			this.layout.wrapper.appendChild(this.layout.textarea);
-
-			this.layout.buttons = document.createElement("div");
-			this.layout.buttons.className = "item__buttons";
-			this.layout.wrapper.appendChild(this.layout.buttons);
-
-			this.layout.save = document.createElement("button");
-			this.layout.save.className = "item__save-button";
-			this.layout.save.textContent = "Save";
-			this.layout.buttons.appendChild(this.layout.save);
-
-			this.layout.cancel = document.createElement("button");
-			this.layout.cancel.className = "item__cancel-button";
-			this.layout.cancel.textContent = "Cancel";
-			this.layout.buttons.appendChild(this.layout.cancel);
-
-
+			
 			this.layout.header.addEventListener('dragstart', this.dragStart.bind(this), false);
 			this.layout.container.addEventListener('dragover', this.dragOver.bind(this), false);
 			this.layout.container.addEventListener('dragenter', this.dragEnter.bind(this), false);
@@ -255,11 +221,13 @@ class Item {
 
 		this.layout.container.classList.remove("add-border");
 
+		console.log(this.counter);
+		this.counter = 0;
+
 		return false;
 	}
 
 	dragEnter(e) {
-		console.log("dragEnter");
 		e.stopPropagation();
 		e.preventDefault();
 		this.counter++;
@@ -270,7 +238,6 @@ class Item {
 	}
 
 	dragLeave(e) {
-		console.log("dragLeave");
 		e.stopPropagation();
 
 		this.counter--;
